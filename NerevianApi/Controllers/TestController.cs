@@ -8,7 +8,17 @@ namespace NerevianApi.Controllers
     public class TestController : Controller
     {
         [HttpGet]
-        public IActionResult GetGreeting() { }
+        public IActionResult GetGreeting()
+        {
+            return Ok(new
+            {
+                msg =
+                ".net here!",
+                date = DateTime.Now,
+                status = "success"
+
+            });
+        }
         
     }
 }
