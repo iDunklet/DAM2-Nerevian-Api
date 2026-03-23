@@ -1,0 +1,6 @@
+@NerevianApi_HostAddress = http://localhost:5125
+
+GET {{NerevianApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
