@@ -1,6 +1,10 @@
 ﻿namespace NerevianApi.Models.Business.Offer
 {
-    public class StatusOffer
+ 
+    public enum StatusOffer
     {
+        Pending,
+        Accepted,
+        Rejected
     }
 }
