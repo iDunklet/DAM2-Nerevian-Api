@@ -2,5 +2,7 @@
 {
     public class FlowType
     {
+            public int Id { get; set; }
+            public string type { get; set; }
     }
 }

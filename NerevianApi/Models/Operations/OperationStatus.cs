@@ -2,5 +2,7 @@
 {
     public class OperationStatus
     {
+        public int Id { get; set; }
+        public string status { get; set; }
     }
 }

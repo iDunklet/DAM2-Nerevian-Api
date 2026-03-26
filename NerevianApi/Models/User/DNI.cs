@@ -2,5 +2,7 @@
 {
     public class DNI
     {
+        public int id { get; set; }
+        public string dni { get; set; }
     }
 }
