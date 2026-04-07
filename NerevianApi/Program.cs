@@ -3,9 +3,9 @@ using NerevianApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+ //   options.UseSqlServer(connectionString));
 
 // 1. Add CORS policy (In English, of course)
 builder.Services.AddCors(options =>

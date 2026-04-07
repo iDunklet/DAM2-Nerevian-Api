@@ -5,8 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7bad3cd4-e779-4813-8428-55c7caff9fa9" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/NerevianApi/Controllers/AuthController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/NerevianApi/Controllers/AuthController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NerevianApi/NerevianApi.http" beforeDir="false" afterPath="$PROJECT_DIR$/NerevianApi/NerevianApi.http" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NerevianApi/Controllers/OfferController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/NerevianApi/Controllers/OfferController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NerevianApi/Models/Business/Offer/StatusOffer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/NerevianApi/Models/Business/Offer/StatusOffer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NerevianApi/NerevianApi.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/NerevianApi/NerevianApi.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NerevianApi/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/NerevianApi/Program.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,27 +21,27 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 4
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="3BUHlCxhnkthI1SsZjUqtKjeyxD" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "Chenhan",
-    "kotlin-language-version-configured": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Chenhan&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="7bad3cd4-e779-4813-8428-55c7caff9fa9" name="Changes" comment="" />
