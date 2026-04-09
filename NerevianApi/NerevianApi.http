@@ -4,3 +4,12 @@ GET {{NerevianApi_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+POST {{NerevianApi_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  //LoginRequest
+}
+
+###
