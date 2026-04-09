@@ -60,7 +60,7 @@ namespace NerevianApi.Controllers
                 updatedOffer = offerToUpdate
             });
         }
-    }
+    }//gg
 
     public class OfferStatusUpdateRequest
     {
