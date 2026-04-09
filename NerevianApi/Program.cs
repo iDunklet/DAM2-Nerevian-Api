@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore; // <--- AÑADE ESTA LÍNEA (1)
-using NerevianApi.Models;
+using NerevianApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContext<NerevianDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 // 1. Add CORS policy (In English, of course)
