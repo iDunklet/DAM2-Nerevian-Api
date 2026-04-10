@@ -1,5 +1,6 @@
 ﻿using NerevianApi.Models.Operations;
 using NerevianApi.Models.User;
+using NerevianApi.Models.Business.Offer;
 
 public class Operation
     {

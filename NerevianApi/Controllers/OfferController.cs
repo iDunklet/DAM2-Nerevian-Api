@@ -2,69 +2,55 @@
 using System.Collections.Generic;
 using System.Linq;
 using NerevianApi.Models.Business.Offer;
+using NerevianApi.Data;
 
 namespace NerevianApi.Controllers
 {
+    [Route("api/offers")]
     [ApiController]
-    [Route("api/[controller]")]
     public class OfferController : ControllerBase
     {
-        private static List<Offer> _fakeDatabase = new List<Offer>
+        private readonly NerevianDbContext _context;
+        public OfferController(NerevianDbContext context)
         {
-            new Offer {
-                id = 1,
-                denyReason = string.Empty,
-                status = new StatusOffer { id = 1, status = "pending" }
-            },
-            new Offer {
-                id = 2,
-                denyReason = string.Empty,
-                status = new StatusOffer { id = 2, status = "pending" }
-            }
-        };
-
-        [HttpGet]
-        public ActionResult<IEnumerable<Offer>> GetOffers()
-        {
-            return Ok(_fakeDatabase);
+            _context = context;
         }
 
-        [HttpPost("{id}/status")]
-        public IActionResult UpdateOfferStatus(int id, [FromBody] OfferStatusUpdateRequest request)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetOffer(int id)
         {
-            if (request.NewStatus.ToLower() == "rejected" && string.IsNullOrEmpty(request.Justification))
-            {
-                return BadRequest(new { message = "Debe proporcionar una justificación para rechazar la propuesta." });
-            }
-
-            var offerToUpdate = _fakeDatabase.FirstOrDefault(o => o.id == id);
-            if (offerToUpdate == null)
+            var offer = await _context.Offers.FindAsync(id);
+            if (offer == null)
             {
                 return NotFound(new { message = $"No se encontró la oferta con ID {id}." });
             }
-
-            if (request.NewStatus.ToLower() == "rejected")
-            {
-                offerToUpdate.denyReason = request.Justification;
+            else {
+                return Ok(offer);
             }
-
-            if (offerToUpdate.status == null)
-            {
-                offerToUpdate.status = new StatusOffer();
-            }
-            offerToUpdate.status.status = request.NewStatus;
-
-            return Ok(new
-            {
-                message = "Estado de la oferta actualizado correctamente.",
-                updatedOffer = offerToUpdate
-            });
         }
-    }//gg
 
-    public class OfferStatusUpdateRequest
-    {
-        public string NewStatus { get; set; } = string.Empty;
-        public string? Justification { get; set; }
+        [HttpPost]
+        public async Task<IActionResult> CreateOffer([FromBody] Offer newOffer)
+        {
+            newOffer.finalValidationDate = DateTime.Now;
+            if (newOffer.estat_oferta_id == 0)
+            {
+                newOffer.estat_oferta_id = 0;
+            }
+
+            _context.Offers.Add(newOffer);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetOffer), new { id = newOffer.id }, newOffer);
+
+        }
+
+        
+
+
+
+
+
     }
+
+  
 }

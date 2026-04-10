@@ -1,6 +1,7 @@
 ﻿using NerevianApi.Models.Operations;
 using NerevianApi.Models.User;
 using NerevianApi.Models.Documents;
+using NerevianApi.Models.Business.Offer;
 public class Document
     {
         public int id { get; set; }

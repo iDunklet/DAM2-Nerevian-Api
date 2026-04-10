@@ -48,9 +48,9 @@ namespace NerevianApi.Data
 
 
         // Incoterms
-        public DbSet<IncotermTrackingSteps> IncotermTrackingSteps { get; set; }
-        public DbSet<IncotermType> IncotermTypes { get; set; }
-        public DbSet<TrackingSteps> TrackingSteps { get; set; }
+        public DbSet<Incoterm> Incoterm { get; set; }
+        public DbSet<IncotermType> IncotermType { get; set; }
+        public DbSet<TrackingStep> TrackingStep { get; set; }
 
 
         // Documents

@@ -5,7 +5,7 @@ using NerevianApi.Models.Business.Request;
 
 namespace NerevianApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/tracks")]
     [ApiController]
     public class TrackController : ControllerBase
     {
