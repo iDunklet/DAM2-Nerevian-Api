@@ -3,10 +3,21 @@ using NerevianApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddKeyPerFile(directoryPath: Directory.GetCurrentDirectory(), optional: true);
+// O mejor aún, usa esta lógica simple:
+if (File.Exists(".env"))
+{
+    foreach (var line in File.ReadAllLines(".env"))
+    {
+        var parts = line.Split('=', 2);
+        if (parts.Length == 2) Environment.SetEnvironmentVariable(parts[0].Trim(), parts[1].Trim().Trim('"'));
+    }
+}
+// ----------------------------
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                       ?? builder.Configuration["ConnectionStrings:DefaultConnection"]
-                       ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
-                       ?? Environment.GetEnvironmentVariable("DefaultConnection");
+                       ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+
 builder.Services.AddDbContext<NerevianDbContext>(options =>
     options.UseSqlServer(connectionString));
 
