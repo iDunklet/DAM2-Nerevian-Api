@@ -3,7 +3,10 @@ using NerevianApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                       ?? builder.Configuration["ConnectionStrings:DefaultConnection"]
+                       ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+                       ?? Environment.GetEnvironmentVariable("DefaultConnection");
 builder.Services.AddDbContext<NerevianDbContext>(options =>
     options.UseSqlServer(connectionString));
 
