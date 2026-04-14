@@ -18,13 +18,27 @@ namespace NerevianApi.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTrack(int id)
         {
-            var request = await _context.StatusRequests.FindAsync(id);
-            if (request == null)
+            try
             {
-                return NotFound(new { message = "No se ha encontrado la operacion :(" });
-            }
-            else {
+                // El punto donde sospechamos que explota
+                var request = await _context.StatusRequests.FindAsync(id);
+
+                if (request == null)
+                {
+                    return NotFound(new { message = "No se ha encontrado la operacion :(" });
+                }
+
                 return Ok(request);
+            }
+            catch (Exception ex)
+            {
+                // Esto nos va a escupir TODO: el error de conexión, si falta una tabla, etc.
+                return StatusCode(500, new
+                {
+                    message = "Se ha petado",
+                    error = ex.Message,
+                    inner = ex.InnerException?.Message
+                });
             }
         }
 
