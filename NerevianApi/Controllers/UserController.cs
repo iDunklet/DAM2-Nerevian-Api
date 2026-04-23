@@ -24,17 +24,17 @@ namespace NerevianApi.Controllers
         {
             try
             {
-                // Buscamos en la tabla 'usuaris' mapeando los nombres reales de la BD
-                var user = await _context.Usuaris
-                    .Where(u => u.id == id)
+                // USAMOS '_context.Users' porque así está definido en NerevianDbContext
+                var user = await _context.Users
+                    .Where(u => u.Id == id)
                     .Select(u => new
                     {
-                        id = u.id,
-                        firstName = u.nom,      // En BD es 'nom'
-                        lastName = u.cognoms,   // En BD es 'cognoms'
-                        email = u.correu,       // En BD es 'correu'
-                        phone = u.telefon,      // En BD es 'telefon'
-                        roleId = u.rol_id       // En BD es 'rol_id'
+                        id = u.Id,
+                        firstName = u.Name,      // Mapea la propiedad 'Name' del modelo
+                        lastName = u.Surname,    // Mapea la propiedad 'Surname' del modelo
+                        email = u.email,         // Propiedad 'email'
+                        phone = u.PhoneNumber,   // Propiedad 'PhoneNumber'
+                        roleId = u.Roleid        // Propiedad 'Roleid'
                     })
                     .FirstOrDefaultAsync();
 
