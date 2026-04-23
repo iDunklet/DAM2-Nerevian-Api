@@ -1,10 +1,10 @@
-using Microsoft.EntityFrameworkCore; // <--- AÑADE ESTA LÍNEA (1)
+using Microsoft.EntityFrameworkCore;
 using NerevianApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddKeyPerFile(directoryPath: Directory.GetCurrentDirectory(), optional: true);
-// O mejor aún, usa esta lógica simple:
+
 if (File.Exists(".env"))
 {
     foreach (var line in File.ReadAllLines(".env"))

@@ -86,7 +86,8 @@ namespace NerevianApi.Controllers
             }
             else
             {
-                response = Ok(incoterm);
+                response = Ok(
+                    );
             }
 
             return response;
