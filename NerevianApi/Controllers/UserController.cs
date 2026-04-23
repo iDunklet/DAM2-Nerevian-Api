@@ -19,32 +19,31 @@ namespace NerevianApi.Controllers
             _context = context;
         }
 
-        // GET: api/user/perfil/5
-        [HttpGet("perfil/{id}")]
+        [HttpGet("profile/{id}")]
         public async Task<IActionResult> GetProfile(int id)
         {
             try
             {
-                // Buscamos al usuario en la tabla 'usuaris'
-                var usuario = await _context.Usuaris
+                // Buscamos en la tabla 'usuaris' mapeando los nombres reales de la BD
+                var user = await _context.Usuaris
                     .Where(u => u.id == id)
                     .Select(u => new
                     {
                         id = u.id,
-                        nom = u.nom,
-                        cognoms = u.cognoms,
-                        correu = u.correu,
-                        telefon = u.telefon,
-                        rol_id = u.rol_id
+                        firstName = u.nom,      // En BD es 'nom'
+                        lastName = u.cognoms,   // En BD es 'cognoms'
+                        email = u.correu,       // En BD es 'correu'
+                        phone = u.telefon,      // En BD es 'telefon'
+                        roleId = u.rol_id       // En BD es 'rol_id'
                     })
                     .FirstOrDefaultAsync();
 
-                if (usuario == null)
+                if (user == null)
                 {
-                    return NotFound(new { message = "No se ha encontrado el usuario" });
+                    return NotFound(new { message = "Usuario no encontrado." });
                 }
 
-                return Ok(usuario);
+                return Ok(user);
             }
             catch (Exception ex)
             {
