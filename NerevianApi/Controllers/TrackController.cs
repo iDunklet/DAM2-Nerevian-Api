@@ -20,7 +20,6 @@ namespace NerevianApi.Controllers
         {
             try
             {
-                // El punto donde sospechamos que explota
                 var request = await _context.StatusRequests.FindAsync(id);
 
                 if (request == null)
@@ -32,7 +31,6 @@ namespace NerevianApi.Controllers
             }
             catch (Exception ex)
             {
-                // Esto nos va a escupir TODO: el error de conexión, si falta una tabla, etc.
                 return StatusCode(500, new
                 {
                     message = "Se ha petado",
