@@ -20,37 +20,44 @@ namespace NerevianApi.Controllers
         {
             try
             {
-                var trackingInfo = await _context.Operacions
+                // 1. Empezamos desde Operacions
+                var trackingData = await _context.Operations
                     .Where(o => o.Id == id)
-                    .Include(o => o.Oferta)
-                        .ThenInclude(of => of.Solicitud)
-                            .ThenInclude(s => s.PortOrigen)
-                    .Include(o => o.Oferta.Solicitud.PortDesti)
-                    .Include(o => o.Oferta.Solicitud.TipusCarrega)
+                    .Include(o => o.Offer)
+                        .ThenInclude(off => off.request)
+                            .ThenInclude(r => r.originPort)
+                    .Include(o => o.Offer.request.destinationPort)
+                    .Include(o => o.Offer.request.cargoType)
+                    .Include(o => o.Status) // Incluimos el estado de la operación
                     .Select(o => new
                     {
-                        Operacio = o.CodiReferencia, 
-                        Port_origen = o.Oferta.Solicitud.PortOrigen.Nom,
-                        Port_desti = o.Oferta.Solicitud.PortDesti.Nom,
-                        Tipus_carrega = o.Oferta.Solicitud.TipusCarrega.Tipus,
-                        Data_inici = o.DataInici,
-                        Estat_id = o.EstatId
+                        // 2. Mapeo exacto para tu compañero
+                        port_origen = o.Offer.request.originPort != null ? o.Offer.request.originPort.name : "N/A",
+                        port_desti = o.Offer.request.destinationPort != null ? o.Offer.request.destinationPort.name : "N/A",
+                        tipus_carrega = o.Offer.request.cargoType != null ? o.Offer.request.cargoType.type : "N/A",
+                        operacio = o.Reference, // El código (ej: 'OP-123')
+
+                        // 3. Campos extra útiles
+                        estat_actual = o.Status != null ? o.Status.status : "Desconocido",
+                        data_inici = o.InitialDate,
+                        observaciones = o.Observations
                     })
                     .FirstOrDefaultAsync();
 
-                if (trackingInfo == null)
+                if (trackingData == null)
                 {
-                    return NotFound(new { message = "No se ha encontrado la operacion con ID: " + id });
+                    return NotFound(new { message = $"No se encontró la operación {id}" });
                 }
 
-                return Ok(trackingInfo);
+                return Ok(trackingData);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new
                 {
-                    message = "Error interno en el servidor",
-                    error = ex.Message
+                    message = "Error en el servidor al obtener tracking",
+                    error = ex.Message,
+                    inner = ex.InnerException?.Message
                 });
             }
         }

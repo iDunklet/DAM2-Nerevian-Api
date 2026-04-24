@@ -1,8 +1,11 @@
-﻿namespace NerevianApi.Models.Operations
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+[Table("estats_operacions")]
+public class OperationStatus
 {
-    public class OperationStatus
-    {
-        public int Id { get; set; }
-        public string status { get; set; }
-    }
+    [Column("id")]
+    public int Id { get; set; }
+
+    [Column("estat")] // En la BD se llama 'estat'
+    public string status { get; set; } = string.Empty;
 }
