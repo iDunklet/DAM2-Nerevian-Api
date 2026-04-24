@@ -2,7 +2,7 @@
 using NerevianApi.Models.User;
 using NerevianApi.Models.Business.Offer;
 using NerevianApi.Models.Business.Request;
-using NerevianApi.Models.Operations;
+using NerevianApi.Models.Operation;
 using NerevianApi.Models.Utils;
 using NerevianApi.Models.Logistics;
 using NerevianApi.Models.Incoterms;

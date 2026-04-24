@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using NerevianApi.Data;
 using NerevianApi.Models.Business.Request;
+using NerevianApi.Models.Operation;
+using Microsoft.EntityFrameworkCore; 
 
 namespace NerevianApi.Controllers
 {
