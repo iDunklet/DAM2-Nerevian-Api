@@ -1,57 +1,51 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using NerevianApi.Models.User;
-using NerevianApi.Models.Business.Request;
+// Asegúrate de tener los using correctos para StatusOffer y Request
 
 namespace NerevianApi.Models.Business.Offer
 {
-    [Table("oferta")]
+    [Table("ofertes")] // <-- CORREGIDO: Ahora coincide con SQL
     public class Offer
     {
-        // --- Campos Escalares ---
-
         [Column("id")]
         public int id { get; set; }
 
-        [Column("data_validacio_inicial")]
+        [Column("data_validessa_inicial")] // <-- CORREGIDO: 'validessa' con doble S
         public DateTime initialValidationDate { get; set; }
 
-        [Column("data_validacio_final")]
+        [Column("data_validessa_final")] // <-- CORREGIDO
         public DateTime finalValidationDate { get; set; }
 
         [Column("moneda")]
-        public string coin { get; set; }
+        public string coin { get; set; } = string.Empty;
 
         [Column("pressupost")]
-        public string budget { get; set; }
+        public double budget { get; set; } // <-- CORREGIDO: De string a double (por el float de SQL)
 
         [Column("comentaris")]
-        public string comments { get; set; }
+        public string? comments { get; set; }
 
-        [Column("motiu_rebuig")]
-        public string denyReason { get; set; }
+        [Column("deny_reason")] // <-- CORREGIDO: En SQL lo tienes en inglés
+        public string? denyReason { get; set; }
 
-        // --- Claves Foráneas (FK) y Propiedades de Navegación ---
+        // --- Claves Foráneas ---
 
-        // Relación con Estado
         [Column("estat_oferta_id")]
         public int estat_oferta_id { get; set; }
 
         [ForeignKey("estat_oferta_id")]
-        public StatusOffer status { get; set; }
+        public StatusOffer? status { get; set; }
 
-        // Relación con Cliente
-        [Column("client_id")]
+        [Column("clients_id")] // <-- CORREGIDO: En SQL está en plural
         public int client_id { get; set; }
 
         [ForeignKey("client_id")]
-        public Client client { get; set; }
+        public Client? client { get; set; }
 
-        // Relación con Solicitud (Request)
-        // Nota: Especificamos Request.Request por el namespace, para evitar ambigüedades
         [Column("solicitud_id")]
         public int solicitud_id { get; set; }
 
         [ForeignKey("solicitud_id")]
-        public Request.Request request { get; set; }
+        public NerevianApi.Models.Business.Request.Request? request { get; set; }
     }
 }
