@@ -20,22 +20,37 @@ namespace NerevianApi.Controllers
         {
             try
             {
-                var request = await _context.StatusRequests.FindAsync(id);
+                var trackingInfo = await _context.Operacions
+                    .Where(o => o.Id == id)
+                    .Include(o => o.Oferta)
+                        .ThenInclude(of => of.Solicitud)
+                            .ThenInclude(s => s.PortOrigen)
+                    .Include(o => o.Oferta.Solicitud.PortDesti)
+                    .Include(o => o.Oferta.Solicitud.TipusCarrega)
+                    .Select(o => new
+                    {
+                        Operacio = o.CodiReferencia, 
+                        Port_origen = o.Oferta.Solicitud.PortOrigen.Nom,
+                        Port_desti = o.Oferta.Solicitud.PortDesti.Nom,
+                        Tipus_carrega = o.Oferta.Solicitud.TipusCarrega.Tipus,
+                        Data_inici = o.DataInici,
+                        Estat_id = o.EstatId
+                    })
+                    .FirstOrDefaultAsync();
 
-                if (request == null)
+                if (trackingInfo == null)
                 {
-                    return NotFound(new { message = "No se ha encontrado la operacion :(" });
+                    return NotFound(new { message = "No se ha encontrado la operacion con ID: " + id });
                 }
 
-                return Ok(request);
+                return Ok(trackingInfo);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new
                 {
-                    message = "Se ha petado",
-                    error = ex.Message,
-                    inner = ex.InnerException?.Message
+                    message = "Error interno en el servidor",
+                    error = ex.Message
                 });
             }
         }
