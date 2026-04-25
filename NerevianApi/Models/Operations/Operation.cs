@@ -1,7 +1,6 @@
-﻿using NerevianApi.Models.Business.Offer;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using NerevianApi.Models.User;
-using System.ComponentModel.DataAnnotations.Schema;
-// Quitamos el using conflictivo y usamos la ruta completa abajo
+using NerevianApi.Models.Business.Offer;
 
 namespace NerevianApi.Models.Operation
 {
@@ -13,30 +12,25 @@ namespace NerevianApi.Models.Operation
 
         [Column("oferta_id")]
         public int OfferId { get; set; }
-
         [ForeignKey("OfferId")]
-        public Offer Offer { get; set; }
+        public Offer offer { get; set; }
 
         [Column("codi_referencia")]
-        public string Reference { get; set; } = string.Empty;
+        public string reference { get; set; } = string.Empty;
 
         [Column("estat_id")]
-        public int StatusId { get; set; }
-
+        public int? StatusId { get; set; }
         [ForeignKey("StatusId")]
-        public OperationStatus Status { get; set; }
+        public OperationStatus status { get; set; }
 
         [Column("operador_id")]
         public int OperatorId { get; set; }
-
-        [ForeignKey("OperatorId")]
-        public NerevianApi.Models.User.User Operator { get; set; } // Solución al error
+        // Aquí asumiríamos que tienes un User para el Operador
 
         [Column("client_id")]
         public int ClientId { get; set; }
-
         [ForeignKey("ClientId")]
-        public Client Client { get; set; } // Verifica que Client no tenga el mismo problema
+        public Client client { get; set; }
 
         [Column("data_inici")]
         public DateTime? InitialDate { get; set; }
@@ -45,12 +39,12 @@ namespace NerevianApi.Models.Operation
         public DateTime? FinalDate { get; set; }
 
         [Column("observacions")]
-        public string? Observations { get; set; }
+        public string? observations { get; set; } // En BD es varchar(255), no un array[]
 
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime? createdAt { get; set; }
 
         [Column("updated_at")]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? updatedAt { get; set; }
     }
 }

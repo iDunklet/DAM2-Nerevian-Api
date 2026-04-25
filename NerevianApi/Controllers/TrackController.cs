@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NerevianApi.Data;
-using NerevianApi.Models.Business.Request;
-using NerevianApi.Models.Operation;
-using Microsoft.EntityFrameworkCore; 
+using Microsoft.EntityFrameworkCore;
 
 namespace NerevianApi.Controllers
 {
@@ -22,27 +20,23 @@ namespace NerevianApi.Controllers
         {
             try
             {
-                // 1. Empezamos desde Operacions
                 var trackingData = await _context.Operations
                     .Where(o => o.Id == id)
-                    .Include(o => o.Offer)
+                    .Include(o => o.offer) // minúscula, como en el modelo
                         .ThenInclude(off => off.request)
                             .ThenInclude(r => r.originPort)
-                    .Include(o => o.Offer.request.destinationPort)
-                    .Include(o => o.Offer.request.cargoType)
-                    .Include(o => o.Status) // Incluimos el estado de la operación
+                    .Include(o => o.offer.request.destinationPort)
+                    .Include(o => o.offer.request.cargoType)
+                    .Include(o => o.status) // minúscula, como en el modelo
                     .Select(o => new
                     {
-                        // 2. Mapeo exacto para tu compañero
-                        port_origen = o.Offer.request.originPort != null ? o.Offer.request.originPort.name : "N/A",
-                        port_desti = o.Offer.request.destinationPort != null ? o.Offer.request.destinationPort.name : "N/A",
-                        tipus_carrega = o.Offer.request.cargoType != null ? o.Offer.request.cargoType.type : "N/A",
-                        operacio = o.Reference, // El código (ej: 'OP-123')
-
-                        // 3. Campos extra útiles
-                        estat_actual = o.Status != null ? o.Status.status : "Desconocido",
+                        port_origen = o.offer.request.originPort != null ? o.offer.request.originPort.name : "N/A",
+                        port_desti = o.offer.request.destinationPort != null ? o.offer.request.destinationPort.name : "N/A",
+                        tipus_carrega = o.offer.request.cargoType != null ? o.offer.request.cargoType.type : "N/A",
+                        operacio = o.reference, // minúscula
+                        estat_actual = o.status != null ? o.status.status : "Desconocido", // minúscula
                         data_inici = o.InitialDate,
-                        observaciones = o.Observations
+                        observaciones = o.observations // minúscula
                     })
                     .FirstOrDefaultAsync();
 
@@ -64,22 +58,55 @@ namespace NerevianApi.Controllers
             }
         }
 
+        // Endpoint para cambiar estado
         [HttpPut("{id}/estado/{nuevoEstadoId}")]
-        public async Task<IActionResult> ChangeStatus(int id, int nuevoEstadoId) { 
-        
+        public async Task<IActionResult> ChangeStatus(int id, int nuevoEstadoId)
+        {
             var request = await _context.Requests.FindAsync(id);
             if (request == null)
             {
                 return NotFound(new { message = "No se ha encontrado la operacion :(" });
             }
-            else { 
+            else
+            {
                 request.estat_solicitud_id = nuevoEstadoId;
                 await _context.SaveChangesAsync();
                 return Ok(request.estat_solicitud_id);
             }
-
-
         }
-        
+
+        // Endpoint para LA LISTA ENTERA (Para el RecyclerView de Android)
+        [HttpGet]
+        public async Task<IActionResult> GetAllTracks()
+        {
+            try
+            {
+                var trackingList = await _context.Operations
+                    .Include(o => o.status)
+                    .Include(o => o.client)
+                        .ThenInclude(c => c.User) // ¡Ahora funcionará gracias al Client.cs actualizado!
+                    .Include(o => o.offer)
+                        .ThenInclude(off => off.request)
+                            .ThenInclude(r => r.originPort)
+                    .Include(o => o.offer.request.destinationPort)
+                    .Select(o => new
+                    {
+                        id = o.Id,
+                        referenceCode = o.reference,
+                        status = o.status != null ? o.status.status : "Desconocido",
+                        clientName = o.client != null && o.client.User != null ? o.client.User.Name + " " + o.client.User.Surname : "Cliente Desconocido",
+                        originPort = o.offer.request.originPort != null ? o.offer.request.originPort.name : "N/A",
+                        destinationPort = o.offer.request.destinationPort != null ? o.offer.request.destinationPort.name : "N/A",
+                        eta = o.FinalDate
+                    })
+                    .ToListAsync();
+
+                return Ok(trackingList);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener la lista de tracks", error = ex.Message, inner = ex.InnerException?.Message });
+            }
+        }
     }
 }
