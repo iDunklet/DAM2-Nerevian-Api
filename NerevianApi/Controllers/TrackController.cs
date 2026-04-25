@@ -20,74 +20,53 @@ namespace NerevianApi.Controllers
         {
             try
             {
-                var trackingData = await _context.Operations
+                var trackingData = await _context.Operation // Corregido a plural
                     .Where(o => o.Id == id)
-                    .Include(o => o.offer) // minúscula, como en el modelo
-                        .ThenInclude(off => off.request)
-                            .ThenInclude(r => r.originPort)
+                    .Include(o => o.client).ThenInclude(c => c.User)
+                    .Include(o => o.offer).ThenInclude(off => off.request).ThenInclude(r => r.originPort)
                     .Include(o => o.offer.request.destinationPort)
                     .Include(o => o.offer.request.cargoType)
-                    .Include(o => o.status) // minúscula, como en el modelo
+                    .Include(o => o.status)
                     .Select(o => new
                     {
+                        id = o.Id,
+                        operacio = o.reference,
+                        estat_actual = o.status != null ? o.status.status : "Desconocido",
                         port_origen = o.offer.request.originPort != null ? o.offer.request.originPort.name : "N/A",
                         port_desti = o.offer.request.destinationPort != null ? o.offer.request.destinationPort.name : "N/A",
                         tipus_carrega = o.offer.request.cargoType != null ? o.offer.request.cargoType.type : "N/A",
-                        operacio = o.reference, // minúscula
-                        estat_actual = o.status != null ? o.status.status : "Desconocido", // minúscula
-                        data_inici = o.InitialDate,
-                        observaciones = o.observations // minúscula
+
+                        // SOLUCIÓN AL ERROR ToString:
+                        data_inici = o.InitialDate.HasValue ? o.InitialDate.Value.ToString("yyyy-MM-dd") : "N/A",
+
+                        incoterm = "FOB",
+                        cliente_nombre = o.client != null && o.client.User != null ? o.client.User.Name + " " + o.client.User.Surname : "Cliente Desconocido",
+                        doc_bl = true,
+                        doc_factura = true,
+                        doc_packing = false,
+                        doc_dua = false
                     })
                     .FirstOrDefaultAsync();
 
-                if (trackingData == null)
-                {
-                    return NotFound(new { message = $"No se encontró la operación {id}" });
-                }
+                if (trackingData == null) return NotFound(new { message = $"No se encontró la operación {id}" });
 
                 return Ok(trackingData);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    message = "Error en el servidor al obtener tracking",
-                    error = ex.Message,
-                    inner = ex.InnerException?.Message
-                });
+                return StatusCode(500, new { message = "Error al obtener detalle", error = ex.Message });
             }
         }
 
-        // Endpoint para cambiar estado
-        [HttpPut("{id}/estado/{nuevoEstadoId}")]
-        public async Task<IActionResult> ChangeStatus(int id, int nuevoEstadoId)
-        {
-            var request = await _context.Requests.FindAsync(id);
-            if (request == null)
-            {
-                return NotFound(new { message = "No se ha encontrado la operacion :(" });
-            }
-            else
-            {
-                request.estat_solicitud_id = nuevoEstadoId;
-                await _context.SaveChangesAsync();
-                return Ok(request.estat_solicitud_id);
-            }
-        }
-
-        // Endpoint para LA LISTA ENTERA (Para el RecyclerView de Android)
         [HttpGet]
         public async Task<IActionResult> GetAllTracks()
         {
             try
             {
-                var trackingList = await _context.Operations
+                var trackingList = await _context.Operation // Corregido a plural
                     .Include(o => o.status)
-                    .Include(o => o.client)
-                        .ThenInclude(c => c.User) // ¡Ahora funcionará gracias al Client.cs actualizado!
-                    .Include(o => o.offer)
-                        .ThenInclude(off => off.request)
-                            .ThenInclude(r => r.originPort)
+                    .Include(o => o.client).ThenInclude(c => c.User)
+                    .Include(o => o.offer).ThenInclude(off => off.request).ThenInclude(r => r.originPort)
                     .Include(o => o.offer.request.destinationPort)
                     .Select(o => new
                     {
@@ -97,7 +76,9 @@ namespace NerevianApi.Controllers
                         clientName = o.client != null && o.client.User != null ? o.client.User.Name + " " + o.client.User.Surname : "Cliente Desconocido",
                         originPort = o.offer.request.originPort != null ? o.offer.request.originPort.name : "N/A",
                         destinationPort = o.offer.request.destinationPort != null ? o.offer.request.destinationPort.name : "N/A",
-                        eta = o.FinalDate
+
+                        // SOLUCIÓN AL ERROR ToString en el campo ETA:
+                        eta = o.FinalDate.HasValue ? o.FinalDate.Value.ToString("yyyy-MM-dd") : "Pendiente"
                     })
                     .ToListAsync();
 
@@ -105,8 +86,19 @@ namespace NerevianApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error al obtener la lista de tracks", error = ex.Message, inner = ex.InnerException?.Message });
+                return StatusCode(500, new { message = "Error al obtener lista", error = ex.Message });
             }
+        }
+
+        [HttpPut("{id}/estado/{nuevoEstadoId}")]
+        public async Task<IActionResult> ChangeStatus(int id, int nuevoEstadoId)
+        {
+            var operation = await _context.Operation.FindAsync(id); // Corregido a plural
+            if (operation == null) return NotFound();
+
+            operation.StatusId = nuevoEstadoId;
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Estado actualizado" });
         }
     }
 }

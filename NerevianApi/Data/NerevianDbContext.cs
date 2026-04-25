@@ -32,7 +32,7 @@ namespace NerevianApi.Data
 
 
         // Operations
-        public DbSet<Operation> Operations { get; set; }
+        public DbSet<Operation> Operation { get; set; }
         public DbSet<OperationStatus> OperationStatuses { get; set; }
 
 
