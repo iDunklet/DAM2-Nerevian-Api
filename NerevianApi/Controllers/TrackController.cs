@@ -10,60 +10,20 @@ namespace NerevianApi.Controllers
     public class TrackController : ControllerBase
     {
         private readonly NerevianDbContext _context;
+
         public TrackController(NerevianDbContext context)
         {
             _context = context;
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetTrack(int id)
-        {
-            try
-            {
-                var trackingData = await _context.Operation // Corregido a plural
-                    .Where(o => o.Id == id)
-                    .Include(o => o.client).ThenInclude(c => c.User)
-                    .Include(o => o.offer).ThenInclude(off => off.request).ThenInclude(r => r.originPort)
-                    .Include(o => o.offer.request.destinationPort)
-                    .Include(o => o.offer.request.cargoType)
-                    .Include(o => o.status)
-                    .Select(o => new
-                    {
-                        id = o.Id,
-                        operacio = o.reference,
-                        estat_actual = o.status != null ? o.status.status : "Desconocido",
-                        port_origen = o.offer.request.originPort != null ? o.offer.request.originPort.name : "N/A",
-                        port_desti = o.offer.request.destinationPort != null ? o.offer.request.destinationPort.name : "N/A",
-                        tipus_carrega = o.offer.request.cargoType != null ? o.offer.request.cargoType.type : "N/A",
 
-                        // SOLUCIÓN AL ERROR ToString:
-                        data_inici = o.InitialDate.HasValue ? o.InitialDate.Value.ToString("yyyy-MM-dd") : "N/A",
-
-                        incoterm = "FOB",
-                        cliente_nombre = o.client != null && o.client.User != null ? o.client.User.Name + " " + o.client.User.Surname : "Cliente Desconocido",
-                        doc_bl = true,
-                        doc_factura = true,
-                        doc_packing = false,
-                        doc_dua = false
-                    })
-                    .FirstOrDefaultAsync();
-
-                if (trackingData == null) return NotFound(new { message = $"No se encontró la operación {id}" });
-
-                return Ok(trackingData);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al obtener detalle", error = ex.Message });
-            }
-        }
-
+        // 2. LISTA DE OPERACIONES (GET api/tracks)
         [HttpGet]
         public async Task<IActionResult> GetAllTracks()
         {
             try
             {
-                var trackingList = await _context.Operation // Corregido a plural
+                var trackingList = await _context.Operation
                     .Include(o => o.status)
                     .Include(o => o.client).ThenInclude(c => c.User)
                     .Include(o => o.offer).ThenInclude(off => off.request).ThenInclude(r => r.originPort)
@@ -73,11 +33,11 @@ namespace NerevianApi.Controllers
                         id = o.Id,
                         referenceCode = o.reference,
                         status = o.status != null ? o.status.status : "Desconocido",
-                        clientName = o.client != null && o.client.User != null ? o.client.User.Name + " " + o.client.User.Surname : "Cliente Desconocido",
+                        clientName = o.client != null && o.client.User != null
+                            ? o.client.User.Name + " " + o.client.User.Surname
+                            : "N/A",
                         originPort = o.offer.request.originPort != null ? o.offer.request.originPort.name : "N/A",
                         destinationPort = o.offer.request.destinationPort != null ? o.offer.request.destinationPort.name : "N/A",
-
-                        // SOLUCIÓN AL ERROR ToString en el campo ETA:
                         eta = o.FinalDate.HasValue ? o.FinalDate.Value.ToString("yyyy-MM-dd") : "Pendiente"
                     })
                     .ToListAsync();
@@ -90,15 +50,16 @@ namespace NerevianApi.Controllers
             }
         }
 
+        // 3. ACTUALIZAR ESTADO (PUT api/tracks/{id}/estado/{nuevoEstadoId})
         [HttpPut("{id}/estado/{nuevoEstadoId}")]
         public async Task<IActionResult> ChangeStatus(int id, int nuevoEstadoId)
         {
-            var operation = await _context.Operation.FindAsync(id); // Corregido a plural
+            var operation = await _context.Operation.FindAsync(id);
             if (operation == null) return NotFound();
 
             operation.StatusId = nuevoEstadoId;
             await _context.SaveChangesAsync();
-            return Ok(new { message = "Estado actualizado" });
+            return Ok(new { message = "Estado de operación actualizado correctamente" });
         }
     }
 }

@@ -24,8 +24,15 @@ namespace NerevianApi.Models.Business.Request
         [Column("data_creacio")]
         public DateTime createdAt { get; set; }
 
-        // --- Relaciones para el Endpoint ---
-        // IMPORTANTE: Quitamos [NotMapped] de los puertos y carga para que el Endpoint pueda traer los nombres
+        // --- Nuevos campos mapeados para el historial y peso ---
+        [Column("pes_brut")]
+        public decimal? pes_brut { get; set; }
+
+        [Column("volum")]
+        public decimal? volum { get; set; }
+
+        // Relación con las notificaciones (basado en tu DbContext)
+        public ICollection<Notification> notifications { get; set; }
 
         [Column("port_origen_id")]
         public int? originPortId { get; set; }
@@ -45,20 +52,14 @@ namespace NerevianApi.Models.Business.Request
         [ForeignKey("cargoTypeId")]
         public CargoType cargoType { get; set; }
 
-        // --- Objetos con conflicto de nombre ---
-        // Usamos la ruta completa para que C# no diga que "Operation es un namespace"
-
         [NotMapped]
         public NerevianApi.Models.Operation.Operation operation { get; set; }
 
-        // --- Otros campos NotMapped ---
         [NotMapped] public TransportType transportType { get; set; }
         [NotMapped] public FlowType flowType { get; set; }
         [NotMapped] public IncotermType incotermType { get; set; }
         [NotMapped] public Client client { get; set; }
         [NotMapped] public Carrier carrier { get; set; }
-        [NotMapped] public string rawWeight { get; set; }
-        [NotMapped] public string rawVolume { get; set; }
         [NotMapped] public ValidationType validationType { get; set; }
         [NotMapped] public ContainerType containerType { get; set; }
     }
