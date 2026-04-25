@@ -10,19 +10,21 @@ namespace NerevianApi.Models.Utils
         [Column("id")]
         public int Id { get; set; }
 
-        [Column("incoterm_type_id")] // Ajusta este nombre si en tu DB es diferente
-        public int? IncotermTypeId { get; set; }
+        // Según tu script: FK_notification_Incoterm usa [incoterm_id]
+        [Column("incoterm_id")]
+        public int IncotermId { get; set; }
 
-        [ForeignKey("IncotermTypeId")]
-        public IncotermType incotermType { get; set; }
+        [ForeignKey("IncotermId")]
+        public Incoterm incoterm { get; set; } // Ojo: esto apunta a la tabla 'Incoterm', no a 'Incoterm_type'
 
-        [Column("solicitud_id")] // Ajusta este nombre según tu DB
-        public int? RequestId { get; set; }
+        [Column("solicitud_id")]
+        public int RequestId { get; set; }
 
         [ForeignKey("RequestId")]
         public Request request { get; set; }
 
-        [Column("data_actualitzacio")] // Ajusta según el nombre real en tu SQL (ej. update_date o data_update)
+        // Según tu script: [date_update]
+        [Column("date_update")]
         public DateTime updateDate { get; set; }
     }
 }
