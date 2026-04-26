@@ -24,64 +24,63 @@ namespace NerevianApi.Controllers
                 var operationData = await _context.Operation
                     .Where(o => o.Id == id)
                     .Include(o => o.client).ThenInclude(c => c.User)
-                    .Include(o => o.status) // Tabla estats_operacions (estat_id)
+                    .Include(o => o.status)
                     .Include(o => o.offer).ThenInclude(off => off.request).ThenInclude(r => r.originPort)
                     .Include(o => o.offer.request.destinationPort)
                     .Include(o => o.offer.request.cargoType)
-                    // Incluimos notificaciones e incoterm para el historial
+                    .Include(o => o.offer.request.containerType) // <--- Ahora sí funciona porque quitamos el NotMapped
                     .Include(o => o.offer.request.notifications).ThenInclude(n => n.incoterm)
                     .Select(o => new
                     {
-                        // --- Datos de la tabla OPERACIONS ---
+                        // --- Información de Cabecera ---
                         id = o.Id,
-                        // 'reference' mapea a 'codi_referencia' en la tabla operacions
-                        operacio = o.reference,
-                        // 'StatusId' mapea a 'estat_id' en la tabla operacions
-                        estado_id = o.StatusId,
-                        // Texto del estado desde 'estats_operacions'
-                        estat_actual = o.status != null ? o.status.status : "Desconocido",
-                        // Fecha de inicio de la operación
-                        data_inici = o.InitialDate.HasValue ? o.InitialDate.Value.ToString("yyyy-MM-dd") : "N/A",
+                        operacio_ref = o.reference,
+                        estat_actual = o.status != null ? o.status.status : "En proceso",
 
-                        // --- Datos de la tabla SOLICITUD (vía Offer) ---
-                        port_origen = o.offer.request.originPort != null ? o.offer.request.originPort.name : "N/A",
-                        port_desti = o.offer.request.destinationPort != null ? o.offer.request.destinationPort.name : "N/A",
-                        tipus_carrega = o.offer.request.cargoType != null ? o.offer.request.cargoType.type : "N/A",
-                        pes_brut = o.offer.request.pes_brut,
+                        // Generamos el código de ruta para el selector de arriba (Ej: VAL -> SHA)
+                        ruta_corta = (o.offer.request.originPort.name.Substring(0, 3) + " -> " +
+                                     o.offer.request.destinationPort.name.Substring(0, 3)).ToUpper(),
 
-                        incoterm = "FOB", // Valor por defecto o sacado de la solicitud si fuera necesario
+                        // --- Detalles del Envío (Card Central) ---
+                        puerto_origen = o.offer.request.originPort.name,
+                        puerto_destino = o.offer.request.destinationPort.name,
+                        tipo_carga = o.offer.request.cargoType != null ? o.offer.request.cargoType.type : "N/A",
+                        tipo_contenedor = o.offer.request.containerType != null ? o.offer.request.containerType.Name : "Standard",
 
-                        cliente_nombre = o.client != null && o.client.User != null
-                            ? o.client.User.Name + " " + o.client.User.Surname
-                            : "Cliente Desconocido",
+                        // Número de contenedor ficticio (para el diseño tvContainerId)
+                        num_contenedor = "MSKU" + (o.Id + 8800) + "5",
 
-                        // --- Historial (Notificaciones de la solicitud) ---
+                        peso = o.offer.request.pes_brut + " kg",
+                        volumen = o.offer.request.volum + " m³",
+
+                        // --- Historial (Timeline de Android) ---
                         historial = o.offer.request.notifications
                             .OrderByDescending(n => n.updateDate)
                             .Select(n => new {
-                                // 'updateDate' mapea a 'date_update' según tu SQL
-                                fecha = n.updateDate.ToString("yyyy-MM-dd"),
-                                // 'incoterm.name' mapea a la tabla Incoterm (FK incoterm_id)
-                                evento = n.incoterm != null ? n.incoterm.Name : "Estado actualizado"
+                                fecha = n.updateDate.ToString("dd MMM yyyy"),
+                                hora = n.updateDate.ToString("HH:mm"),
+                                evento = n.incoterm != null ? n.incoterm.Name : "Actualización de sistema"
                             }).ToList(),
 
-                        // Documentación (Mockup/Fijo)
-                        doc_bl = true,
-                        doc_factura = true,
-                        doc_packing = false,
-                        doc_dua = false
+                        // --- Documentación (Mockup para los iconos de la UI) ---
+                        docs = new
+                        {
+                            bl = true,
+                            factura = true,
+                            packing_list = false,
+                            dua = false
+                        }
                     })
                     .FirstOrDefaultAsync();
 
                 if (operationData == null)
-                    return NotFound(new { message = $"No se encontró la operación con ID {id}" });
+                    return NotFound(new { message = $"Operación {id} no encontrada" });
 
                 return Ok(operationData);
             }
             catch (Exception ex)
             {
-                // Este catch capturará errores de nombres de columna si los modelos no están sincronizados
-                return StatusCode(500, new { message = "Error al obtener detalle", error = ex.Message });
+                return StatusCode(500, new { message = "Error de servidor", details = ex.Message });
             }
         }
 
@@ -92,37 +91,19 @@ namespace NerevianApi.Controllers
             {
                 var list = await _context.Operation
                     .Include(o => o.status)
+                    .Include(o => o.offer.request.originPort)
+                    .Include(o => o.offer.request.destinationPort)
                     .Select(o => new {
                         id = o.Id,
-                        // Usamos la referencia de la operación
-                        referenceCode = o.reference,
-                        status = o.status != null ? o.status.status : "Desconocido"
+                        reference = o.reference,
+                        status = o.status != null ? o.status.status : "Pendiente",
+                        ruta = o.offer.request.originPort.name.Substring(0, 3) + " - " + o.offer.request.destinationPort.name.Substring(0, 3)
                     }).ToListAsync();
                 return Ok(list);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = ex.Message });
-            }
-        }
-
-        [HttpPut("{id}/estado/{nuevoEstadoId}")]
-        public async Task<IActionResult> ChangeStatus(int id, int nuevoEstadoId)
-        {
-            try
-            {
-                var operation = await _context.Operation.FindAsync(id);
-                if (operation == null) return NotFound(new { message = "Operación no encontrada" });
-
-                // Actualiza el estat_id de la tabla operacions
-                operation.StatusId = nuevoEstadoId;
-                await _context.SaveChangesAsync();
-
-                return Ok(new { message = "Estado actualizado correctamente en la operación" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al actualizar", error = ex.Message });
             }
         }
     }
