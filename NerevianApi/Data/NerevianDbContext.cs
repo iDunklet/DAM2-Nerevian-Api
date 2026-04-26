@@ -56,10 +56,6 @@ namespace NerevianApi.Data
 
             // Esto soluciona tu error: Mapea la clase Notification a la tabla "notification"
             modelBuilder.Entity<Notification>().ToTable("notification");
-
-            // --- CAMBIO MÍNIMO AQUÍ ---
-            // Solo forzamos ContainerType a singular para evitar el error de "Invalid object name"
-            modelBuilder.Entity<ContainerType>().ToTable("ContainerType");
         }
     }
 }
