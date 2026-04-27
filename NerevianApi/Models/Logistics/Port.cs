@@ -1,11 +1,18 @@
-﻿namespace NerevianApi.Models.Logistics
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace NerevianApi.Models.Logistics
 {
+    [Table("ports")] 
     public class Port
     {
-        public int id { get; set; }
-        public string name { get; set; }
-        public City city { get; set; }
+        [Column("id")]
+        public int Id { get; set; } 
 
+        [Column("nom")] 
+        public string Name { get; set; }
+
+        [Column("ciutat_id")] 
+        public int CityId { get; set; }
 
     }
 }

@@ -46,18 +46,6 @@ namespace NerevianApi.Controllers
                 }
 
               
-                var newDoc = new Documents
-                {
-                    fileName = dto.fileName,
-                    originalName = dto.originalName,
-                    type = docType,
-                    path = dto.path,
-                    weight = dto.weight,
-                    realesedBy = user,
-                    RealesedDate = DateTime.UtcNow
-                };
-
-                _context.Documents.Add(newDoc);
                 await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Documento registrado correctamente :)" });

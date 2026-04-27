@@ -67,6 +67,9 @@ namespace NerevianApi.Data
         public DbSet<Request> Requests { get; set; }
         public DbSet<StatusRequest> StatusRequests { get; set; }
 
+        //Presupuesto
+        public DbSet<Presupuesto> Presupuestos { get; set; }
+
 
 
 

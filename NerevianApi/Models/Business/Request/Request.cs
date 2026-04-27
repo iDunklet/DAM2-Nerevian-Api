@@ -27,10 +27,35 @@ namespace NerevianApi.Models.Business.Request
         // --- Campos básicos mapeados ---
         // Le indicamos el nombre en catalán para que no pete al hacer selects
         [Column("comentaris")]
-        public string comments { get; set; }
+        public string? comments { get; set; }
 
         [Column("data_creacio")]
         public DateTime createdAt { get; set; }
+
+
+        [Column("port_origen_id")]
+        public int? PortOrigenId { get; set; }
+
+        [ForeignKey("PortOrigenId")]
+        public Port? originPort { get; set; } 
+
+ 
+        [Column("port_desti_id")]
+        public int? PortDestiId { get; set; }
+
+        [ForeignKey("PortDestiId")]
+        public Port? destinationPort { get; set; }
+
+        [Column("pes_brut")]
+        public decimal? PesBrut { get; set; }
+
+        [Column("incoterm_id")]
+        public int? IncotermId { get; set; }
+
+        [Column("tipus_transport_id")]
+        public int? TipusTransportId { get; set; }
+
+        public ICollection<NerevianApi.Models.Business.Offer.Offer>? Offers { get; set; }
 
         // --- Objetos no mapeados en base de datos ---
         // Con [NotMapped] evitamos que EF Core intente buscar estas columnas y dé error
@@ -43,8 +68,8 @@ namespace NerevianApi.Models.Business.Request
         [NotMapped] public string rawWeight { get; set; }
         [NotMapped] public string rawVolume { get; set; }
         [NotMapped] public ValidationType validationType { get; set; }
-        [NotMapped] public Port originPort { get; set; }
-        [NotMapped] public Port destinationPort { get; set; }
+       
+     
         [NotMapped] public Operation operation { get; set; }
         [NotMapped] public ContainerType containerType { get; set; }
     }
