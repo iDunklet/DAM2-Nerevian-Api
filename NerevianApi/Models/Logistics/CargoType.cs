@@ -1,8 +1,11 @@
-﻿namespace NerevianApi.Models.Logistics
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+[Table("tipus_carrega")]
+public class CargoType
 {
-    public class CargoType
-    {
-        public int Id { get; set; }
-        public string type { get; set; }
-    }
+    [Column("id")]
+    public int Id { get; set; }
+
+    [Column("tipus")] // En la BD se llama 'tipus'
+    public string type { get; set; } = string.Empty;
 }

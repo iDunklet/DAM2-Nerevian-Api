@@ -1,18 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using NerevianApi.Models.Logistics;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace NerevianApi.Models.Logistics
+[Table("ports")]
+public class Port
 {
-    [Table("ports")] 
-    public class Port
-    {
-        [Column("id")]
-        public int Id { get; set; } 
+    [Column("id")]
+    public int id { get; set; }
 
-        [Column("nom")] 
-        public string Name { get; set; }
+    [Column("nom")] // En la BD se llama 'nom'
+    public string name { get; set; } = string.Empty;
 
-        [Column("ciutat_id")] 
-        public int CityId { get; set; }
+    [Column("ciutat_id")]
+    public int cityId { get; set; }
 
-    }
+    [NotMapped] // Si no tienes el modelo City mapeado aún, déjalo como NotMapped
+    public City? city { get; set; }
 }

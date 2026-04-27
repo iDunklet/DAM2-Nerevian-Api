@@ -1,76 +1,80 @@
 ﻿using NerevianApi.Models.Incoterms;
 using NerevianApi.Models.Logistics;
-using NerevianApi.Models.Operations;
 using NerevianApi.Models.User;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml;
+using NerevianApi.Models.Utils;
 
 namespace NerevianApi.Models.Business.Request
 {
-    // Le decimos a Entity Framework que busque la tabla "solicitud" en SQL
     [Table("solicitud")]
     public class Request
     {
-        // Clave primaria
         [Column("id")]
         public int Id { get; set; }
 
-        // --- Gestión del Estado ---
-        // El ID real numérico que se guarda en la base de datos
         [Column("estat_solicitud_id")]
         public int estat_solicitud_id { get; set; }
 
-        // El objeto de navegación (EF Core lo rellena usando el ID de arriba)
         [ForeignKey("estat_solicitud_id")]
         public StatusRequest status { get; set; }
 
-        // --- Campos básicos mapeados ---
-        // Le indicamos el nombre en catalán para que no pete al hacer selects
         [Column("comentaris")]
-        public string? comments { get; set; }
+        public string comments { get; set; } = string.Empty;
 
         [Column("data_creacio")]
         public DateTime createdAt { get; set; }
 
-
-        [Column("port_origen_id")]
-        public int? PortOrigenId { get; set; }
-
-        [ForeignKey("PortOrigenId")]
-        public Port? originPort { get; set; } 
-
- 
-        [Column("port_desti_id")]
-        public int? PortDestiId { get; set; }
-
-        [ForeignKey("PortDestiId")]
-        public Port? destinationPort { get; set; }
+        [Column("updated_at")]
+        public DateTime? updatedAt { get; set; }
 
         [Column("pes_brut")]
-        public decimal? PesBrut { get; set; }
+        public decimal? pes_brut { get; set; }
 
-        [Column("incoterm_id")]
-        public int? IncotermId { get; set; }
+        [Column("volum")]
+        public decimal? volum { get; set; }
+
+        // --- Relaciones de Logística ---
+
+        [Column("port_origen_id")]
+        public int? originPortId { get; set; }
+        [ForeignKey("originPortId")]
+        public Port originPort { get; set; }
+
+        [Column("port_desti_id")]
+        public int? destinationPortId { get; set; }
+        [ForeignKey("destinationPortId")]
+        public Port destinationPort { get; set; }
+
+        [Column("tipus_carrega_id")]
+        public int? cargoTypeId { get; set; }
+        [ForeignKey("cargoTypeId")]
+        public CargoType cargoType { get; set; }
+
+        // IMPORTANTE: Quitamos NotMapped para que funcione el Tracking
+        [Column("tipus_contenidor_id")]
+        public int? containerTypeId { get; set; }
+        [ForeignKey("containerTypeId")]
+        public ContainerType containerType { get; set; }
 
         [Column("tipus_transport_id")]
-        public int? TipusTransportId { get; set; }
+        public int transportTypeId { get; set; }
+        [ForeignKey("transportTypeId")]
+        public TransportType transportType { get; set; }
 
-        public ICollection<NerevianApi.Models.Business.Offer.Offer>? Offers { get; set; }
+        // --- Historial y Notificaciones ---
 
-        // --- Objetos no mapeados en base de datos ---
-        // Con [NotMapped] evitamos que EF Core intente buscar estas columnas y dé error
-        [NotMapped] public TransportType transportType { get; set; }
+        // Esta es la colección que alimenta la línea de tiempo en Android
+        public ICollection<Notification> notifications { get; set; }
+
+        // --- Campos que se mantienen NotMapped (Cosas de lógica de negocio pura) ---
+
+        [NotMapped]
+        public NerevianApi.Models.Operation.Operation operation { get; set; }
+
         [NotMapped] public FlowType flowType { get; set; }
-        [NotMapped] public CargoType cargoType { get; set; }
         [NotMapped] public IncotermType incotermType { get; set; }
         [NotMapped] public Client client { get; set; }
         [NotMapped] public Carrier carrier { get; set; }
-        [NotMapped] public string rawWeight { get; set; }
-        [NotMapped] public string rawVolume { get; set; }
         [NotMapped] public ValidationType validationType { get; set; }
-       
-     
-        [NotMapped] public Operation operation { get; set; }
-        [NotMapped] public ContainerType containerType { get; set; }
     }
 }

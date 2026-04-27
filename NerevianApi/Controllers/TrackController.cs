@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NerevianApi.Data;
-using NerevianApi.Models.Business.Request;
+using Microsoft.EntityFrameworkCore;
 
 namespace NerevianApi.Controllers
 {
@@ -10,52 +10,56 @@ namespace NerevianApi.Controllers
     public class TrackController : ControllerBase
     {
         private readonly NerevianDbContext _context;
+
         public TrackController(NerevianDbContext context)
         {
             _context = context;
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetTrack(int id)
+
+        // 2. LISTA DE OPERACIONES (GET api/tracks)
+        [HttpGet]
+        public async Task<IActionResult> GetAllTracks()
         {
             try
             {
-                var request = await _context.StatusRequests.FindAsync(id);
+                var trackingList = await _context.Operation
+                    .Include(o => o.status)
+                    .Include(o => o.client).ThenInclude(c => c.User)
+                    .Include(o => o.offer).ThenInclude(off => off.request).ThenInclude(r => r.originPort)
+                    .Include(o => o.offer.request.destinationPort)
+                    .Select(o => new
+                    {
+                        id = o.Id,
+                        referenceCode = o.reference,
+                        status = o.status != null ? o.status.status : "Desconocido",
+                        clientName = o.client != null && o.client.User != null
+                            ? o.client.User.Name + " " + o.client.User.Surname
+                            : "N/A",
+                        originPort = o.offer.request.originPort != null ? o.offer.request.originPort.name : "N/A",
+                        destinationPort = o.offer.request.destinationPort != null ? o.offer.request.destinationPort.name : "N/A",
+                        eta = o.FinalDate.HasValue ? o.FinalDate.Value.ToString("yyyy-MM-dd") : "Pendiente"
+                    })
+                    .ToListAsync();
 
-                if (request == null)
-                {
-                    return NotFound(new { message = "No se ha encontrado la operacion :(" });
-                }
-
-                return Ok(request);
+                return Ok(trackingList);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    message = "Se ha petado",
-                    error = ex.Message,
-                    inner = ex.InnerException?.Message
-                });
+                return StatusCode(500, new { message = "Error al obtener lista", error = ex.Message });
             }
         }
 
+        // 3. ACTUALIZAR ESTADO (PUT api/tracks/{id}/estado/{nuevoEstadoId})
         [HttpPut("{id}/estado/{nuevoEstadoId}")]
-        public async Task<IActionResult> ChangeStatus(int id, int nuevoEstadoId) { 
-        
-            var request = await _context.Requests.FindAsync(id);
-            if (request == null)
-            {
-                return NotFound(new { message = "No se ha encontrado la operacion :(" });
-            }
-            else { 
-                request.estat_solicitud_id = nuevoEstadoId;
-                await _context.SaveChangesAsync();
-                return Ok(request.estat_solicitud_id);
-            }
+        public async Task<IActionResult> ChangeStatus(int id, int nuevoEstadoId)
+        {
+            var operation = await _context.Operation.FindAsync(id);
+            if (operation == null) return NotFound();
 
-
+            operation.StatusId = nuevoEstadoId;
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Estado de operación actualizado correctamente" });
         }
-        
     }
 }
