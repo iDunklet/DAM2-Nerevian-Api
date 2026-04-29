@@ -49,8 +49,8 @@ namespace NerevianApi.Controllers
                     Expira = "Creado: " + s.createdAt.ToString("dd MMM"),
 
                     Precio = primeraOferta != null
-                             ? $"{primeraOferta.budget} {primeraOferta.coin}"
-                             : "0 EUR",
+                             ? $"{primeraOferta.budget} €"
+                             : "0 €",
 
                     Incoterm = s.notifications
                         .OrderByDescending(n => n.updateDate)
