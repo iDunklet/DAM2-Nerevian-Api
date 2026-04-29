@@ -27,6 +27,8 @@ namespace NerevianApi.Controllers
                 .Include(r => r.originPort)
                 .Include(r => r.destinationPort)
                 .Include(r => r.Offers)
+                .Include(r => r.notifications)
+                    .ThenInclude(n => n.incoterm)
                 .Take(20)
                 .ToListAsync();
 
@@ -39,10 +41,10 @@ namespace NerevianApi.Controllers
                 {
                     Id = "EXP-" + s.Id,
 
-                    Origen = s.originPort?.Name ?? "Puerto desconocido",
-                    Destino = s.destinationPort?.Name ?? "Puerto desconocido",
+                    Origen = s.originPort?.name ?? "Puerto desconocido",
+                    Destino = s.destinationPort?.name ?? "Puerto desconocido",
 
-                    Tipo = "Transporte " + (s.TipusTransportId?.ToString() ?? ""),
+                    Tipo = "Transporte " + s.transportTypeId,
 
                     Expira = "Creado: " + s.createdAt.ToString("dd MMM"),
 
@@ -50,7 +52,10 @@ namespace NerevianApi.Controllers
                              ? $"{primeraOferta.budget} {primeraOferta.coin}"
                              : "0 EUR",
 
-                    Incoterm = "Incoterm " + (s.IncotermId?.ToString() ?? "N/A"),
+                    Incoterm = s.notifications
+                        .OrderByDescending(n => n.updateDate)
+                        .Select(n => n.incoterm != null ? n.incoterm.Name : null)
+                        .FirstOrDefault() ?? "Incoterm N/A",
                     Detalle = "Comentarios: " + (s.comments ?? "Sin detalles"),
                     Estado = "Estado " + s.estat_solicitud_id
                 };

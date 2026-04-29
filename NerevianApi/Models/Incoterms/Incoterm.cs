@@ -10,7 +10,7 @@ namespace NerevianApi.Models.Incoterms
         public int Id { get; set; }
 
         [Column("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [Column("incoterm_type_id")]
         public int IncotermTypeId { get; set; }

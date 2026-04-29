@@ -18,7 +18,7 @@ namespace NerevianApi.Models.Business.Offer
         public DateTime finalValidationDate { get; set; }
 
         [Column("moneda")]
-        public string coin { get; set; } = string.Empty;
+        public string? coin { get; set; }
 
         [Column("pressupost")]
         public double? budget { get; set; }
@@ -27,7 +27,7 @@ namespace NerevianApi.Models.Business.Offer
         public string? comments { get; set; }
 
         [Column("deny_reason")]
-        public string denyReason { get; set; }
+        public string? denyReason { get; set; }
 
         // --- Claves Foráneas ---
 

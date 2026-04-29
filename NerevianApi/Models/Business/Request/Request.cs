@@ -19,7 +19,7 @@ namespace NerevianApi.Models.Business.Request
         public StatusRequest status { get; set; }
 
         [Column("comentaris")]
-        public string comments { get; set; } = string.Empty;
+        public string? comments { get; set; }
 
         [Column("data_creacio")]
         public DateTime createdAt { get; set; }
@@ -64,7 +64,8 @@ namespace NerevianApi.Models.Business.Request
         // --- Historial y Notificaciones ---
 
         // Esta es la colección que alimenta la línea de tiempo en Android
-        public ICollection<Notification> notifications { get; set; }
+        public ICollection<Notification> notifications { get; set; } = new List<Notification>();
+        public ICollection<NerevianApi.Models.Business.Offer.Offer> Offers { get; set; } = new List<NerevianApi.Models.Business.Offer.Offer>();
 
         // --- Campos que se mantienen NotMapped (Cosas de lógica de negocio pura) ---
 

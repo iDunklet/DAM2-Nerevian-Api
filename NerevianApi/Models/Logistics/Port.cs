@@ -8,7 +8,7 @@ public class Port
     public int id { get; set; }
 
     [Column("nom")] // En la BD se llama 'nom'
-    public string name { get; set; } = string.Empty;
+    public string? name { get; set; }
 
     [Column("ciutat_id")]
     public int cityId { get; set; }
