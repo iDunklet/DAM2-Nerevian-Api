@@ -61,6 +61,11 @@ namespace NerevianApi.Models.Business.Request
         [ForeignKey("transportTypeId")]
         public TransportType transportType { get; set; }
 
+        [Column("incoterm_id")]
+        public int? incotermId { get; set; }
+        [ForeignKey("incotermId")]
+        public Incoterm? incoterm { get; set; }
+
         // --- Historial y Notificaciones ---
 
         // Esta es la colección que alimenta la línea de tiempo en Android

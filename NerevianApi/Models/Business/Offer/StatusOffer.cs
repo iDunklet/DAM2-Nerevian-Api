@@ -2,7 +2,7 @@
 
 namespace NerevianApi.Models.Business.Offer
 {
-    [Table("estat_oferta")]
+    [Table("estats_ofertes")]
     public class StatusOffer
     {
         [Column("id")]
