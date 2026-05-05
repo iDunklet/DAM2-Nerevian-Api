@@ -11,6 +11,9 @@ namespace NerevianApi.Models.Business.Offer
         [Column("id")]
         public int id { get; set; }
 
+        [Column("data_creacio")]
+        public DateTime creationDate { get; set; }
+
         [Column("data_validessa_inicial")]
         public DateTime initialValidationDate { get; set; }
 
@@ -28,6 +31,9 @@ namespace NerevianApi.Models.Business.Offer
 
         [Column("deny_reason")]
         public string? denyReason { get; set; }
+
+        [Column("es_contraoferta")]
+        public bool isCounterOffer { get; set; }
 
         // --- Claves Foráneas ---
 

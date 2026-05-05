@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using NerevianApi.Data;
 using NerevianApi.Models.Documents;
 using NerevianApi.Models.Business.Offer;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
@@ -88,10 +89,70 @@ namespace NerevianApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Presupuesto>> Post(Presupuesto nuevo)
+        public async Task<IActionResult> Post([FromBody] CreatePresupuestoRequest request)
         {
-          
-            return Ok(nuevo);
+            if (request.SolicitudId <= 0)
+            {
+                return BadRequest(new { message = "La solicitud es obligatoria." });
+            }
+
+            if (request.ClientId <= 0)
+            {
+                return BadRequest(new { message = "El cliente es obligatorio." });
+            }
+
+            if (request.Presupuesto <= 0)
+            {
+                return BadRequest(new { message = "El presupuesto debe ser mayor que 0." });
+            }
+
+            var solicitudExiste = await _context.Requests
+                .AnyAsync(r => r.Id == request.SolicitudId);
+
+            if (!solicitudExiste)
+            {
+                return NotFound(new { message = $"No existe la solicitud {request.SolicitudId}." });
+            }
+
+            var clienteExiste = await _context.Clients
+                .AnyAsync(c => c.Id == request.ClientId);
+
+            if (!clienteExiste)
+            {
+                return NotFound(new { message = $"No existe el cliente {request.ClientId}." });
+            }
+
+            var estadoPendiente = await FindPendingOfferStatus();
+            if (estadoPendiente == null)
+            {
+                return BadRequest(new { message = "No existe un estado de oferta pendiente/enviada." });
+            }
+
+            var fechaCreacion = DateTime.Now;
+            var oferta = new Offer
+            {
+                creationDate = fechaCreacion,
+                initialValidationDate = request.FechaValidezInicial ?? fechaCreacion,
+                finalValidationDate = request.FechaValidezFinal ?? fechaCreacion.AddDays(30),
+                coin = string.IsNullOrWhiteSpace(request.Moneda) ? "EUR" : request.Moneda.Trim().ToUpperInvariant(),
+                budget = request.Presupuesto,
+                comments = request.Comentarios,
+                denyReason = null,
+                estat_oferta_id = estadoPendiente.id,
+                client_id = request.ClientId,
+                solicitud_id = request.SolicitudId,
+                isCounterOffer = request.EsContraoferta
+            };
+
+            _context.Offers.Add(oferta);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(Get), new
+            {
+                id = "OFE-" + oferta.id,
+                message = "Presupuesto creado correctamente",
+                estado = NormalizeEstado(estadoPendiente.status)
+            });
         }
 
         [HttpPut("{id}/estado")]
@@ -177,6 +238,14 @@ namespace NerevianApi.Controllers
                 ?? statuses.FirstOrDefault(s => s.status.Contains(normalized, System.StringComparison.OrdinalIgnoreCase));
         }
 
+        private async Task<StatusOffer?> FindPendingOfferStatus()
+        {
+            var statuses = await _context.StatusOffers.ToListAsync();
+
+            return statuses.FirstOrDefault(s => s.status.Equals("enviada", StringComparison.OrdinalIgnoreCase))
+                ?? statuses.FirstOrDefault(s => NormalizeEstado(s.status) == "Pendiente");
+        }
+
         private static string FormatCurrency(string? currency)
         {
             return currency?.Trim().ToUpperInvariant() switch
@@ -215,5 +284,17 @@ namespace NerevianApi.Controllers
     {
         public string Estado { get; set; } = string.Empty;
         public string? Motivo { get; set; }
+    }
+
+    public class CreatePresupuestoRequest
+    {
+        public int SolicitudId { get; set; }
+        public int ClientId { get; set; }
+        public double Presupuesto { get; set; }
+        public string? Moneda { get; set; }
+        public DateTime? FechaValidezInicial { get; set; }
+        public DateTime? FechaValidezFinal { get; set; }
+        public string? Comentarios { get; set; }
+        public bool EsContraoferta { get; set; }
     }
 }
