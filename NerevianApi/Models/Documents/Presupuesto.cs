@@ -9,7 +9,6 @@
         public string Expira { get; set; } 
         public string Precio { get; set; }
         public string Incoterm { get; set; }
-        public string Detalle { get; set; } 
         public string Estado { get; set; }
     }
 }

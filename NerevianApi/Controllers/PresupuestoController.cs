@@ -78,7 +78,6 @@ namespace NerevianApi.Controllers
                         .OrderByDescending(n => n.updateDate)
                         .Select(n => n.incoterm != null ? n.incoterm.Name : null)
                         .FirstOrDefault() ?? "Incoterm N/A",
-                    Detalle = BuildDetalle(s, oferta),
                     Estado = NormalizeEstado(oferta.status?.status ?? s.status?.status)
                 };
 
@@ -190,33 +189,6 @@ namespace NerevianApi.Controllers
                 estado = NormalizeEstado(status.status)
             });
         }
-
-        private static string BuildDetalle(NerevianApi.Models.Business.Request.Request solicitud, Offer oferta)
-        {
-            var partes = new List<string>
-            {
-                "Carga: " + (solicitud.cargoType?.type ?? "N/A"),
-                "Contenedor: " + (solicitud.containerType?.Name ?? "N/A"),
-                "Peso: " + (solicitud.pes_brut.HasValue ? $"{solicitud.pes_brut:0.##} kg" : "N/A"),
-                "Volumen: " + (solicitud.volum.HasValue ? $"{solicitud.volum:0.##} m3" : "N/A")
-            };
-
-            if (!string.IsNullOrWhiteSpace(oferta.client?.User?.Name))
-            {
-                partes.Add("Cliente: " + oferta.client.User.Name + " " + oferta.client.User.Surname);
-            }
-
-            if (!string.IsNullOrWhiteSpace(oferta.comments))
-            {
-                partes.Add("Oferta: " + oferta.comments);
-            }
-
-            partes.Add("Solicitud: " + (solicitud.comments ?? "Sin detalles"));
-
-            return string.Join("\n", partes);
-        }
-
-
 
         private static int? ParseOfferId(string id)
         {
